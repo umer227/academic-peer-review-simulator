@@ -1,7 +1,10 @@
 # Python
 __pycache__/
 *.py[cod]
+venv/
 .venv/
+backend/venv/
+backend/.venv/
 .env
 
 # Node
@@ -16,3 +19,11 @@ npm-debug.log*
 
 # Docker/database
 postgres_data/
+
+# Local SQLite databases
+peer_review.db
+peer_review.db-journal
+backend/peer_review.db
+backend/peer_review.db-journal
+*.db
+*.db-journal
