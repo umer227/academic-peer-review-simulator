@@ -5,10 +5,11 @@ A clean full-stack MVP scaffold for a 5-day university demo. This project is int
 The current version includes:
 
 - FastAPI backend with SQLAlchemy, Pydantic, SQLite-by-default config, CORS, and `GET /health`
+- Paper submission/result APIs and a temporary arXiv related-paper search endpoint
 - React + Vite + Tailwind CSS frontend with Axios and React Router
 - Optional PostgreSQL service via Docker Compose for future deployment
 
-AI agents and arXiv integrations are not implemented yet.
+AI agents are not implemented yet.
 
 ## Project Structure
 
@@ -61,6 +62,28 @@ Backend URL: `http://localhost:8000`
 Health check: `http://localhost:8000/health`
 
 By default, the backend uses SQLite at `backend/peer_review.db`. Docker and PostgreSQL are optional for the local MVP.
+
+### Test arXiv Related Paper Search
+
+Start the backend, then open Swagger:
+
+```text
+http://localhost:8000/docs
+```
+
+Use:
+
+```text
+GET /papers/search/arxiv?query=machine learning peer review
+```
+
+You can also test directly in the browser:
+
+```text
+http://localhost:8000/papers/search/arxiv?query=machine%20learning%20peer%20review
+```
+
+The endpoint calls the public arXiv API and returns up to 5 related papers. If arXiv is unavailable, the endpoint safely returns an empty list.
 
 ### 2. Optional PostgreSQL With Docker
 

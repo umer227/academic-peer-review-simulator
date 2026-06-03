@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Paper
 from app.schemas import PaperCreate, PaperListItem, PaperResponse, PaperResultResponse
+from app.services.arxiv_service import search_related_papers
 
 
 router = APIRouter(prefix="/papers", tags=["papers"])
@@ -33,6 +34,11 @@ def submit_paper(payload: PaperCreate, db: Session = Depends(get_db)):
 @router.get("", response_model=list[PaperListItem])
 def list_papers(db: Session = Depends(get_db)):
     return db.query(Paper).order_by(Paper.created_at.desc()).all()
+
+
+@router.get("/search/arxiv")
+def search_arxiv_papers(query: str = Query(..., min_length=1), max_results: int = Query(5, ge=3, le=5)):
+    return search_related_papers(query=query, max_results=max_results)
 
 
 @router.get("/{paper_id}", response_model=PaperResponse)
