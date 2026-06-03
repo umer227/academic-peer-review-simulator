@@ -4,9 +4,9 @@ A clean full-stack MVP scaffold for a 5-day university demo. This project is int
 
 The current version includes:
 
-- FastAPI backend with SQLAlchemy, Pydantic, PostgreSQL config, CORS, and `GET /health`
+- FastAPI backend with SQLAlchemy, Pydantic, SQLite-by-default config, CORS, and `GET /health`
 - React + Vite + Tailwind CSS frontend with Axios and React Router
-- PostgreSQL service via Docker Compose
+- Optional PostgreSQL service via Docker Compose for future deployment
 
 AI agents and arXiv integrations are not implemented yet.
 
@@ -45,15 +45,7 @@ AI agents and arXiv integrations are not implemented yet.
 
 ## Run Locally
 
-### 1. Start PostgreSQL
-
-```bash
-docker compose up -d
-```
-
-PostgreSQL will be available at `localhost:5432`.
-
-### 2. Run the Backend
+### 1. Run the Backend Without Docker
 
 ```bash
 cd backend
@@ -67,6 +59,20 @@ uvicorn app.main:app --reload
 Backend URL: `http://localhost:8000`
 
 Health check: `http://localhost:8000/health`
+
+By default, the backend uses SQLite at `backend/peer_review.db`. Docker and PostgreSQL are optional for the local MVP.
+
+### 2. Optional PostgreSQL With Docker
+
+```bash
+docker compose up -d
+```
+
+PostgreSQL will be available at `localhost:5432`. To use it later during deployment or integration testing, set `DATABASE_URL` in `backend/.env` to a PostgreSQL URL, for example:
+
+```env
+DATABASE_URL=postgresql+psycopg2://peer_review_user:peer_review_password@localhost:5432/peer_review_db
+```
 
 ### 3. Run the Frontend
 
