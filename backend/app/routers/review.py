@@ -2,6 +2,7 @@ import json
 import re
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.agents.aggregator_agent import aggregate_reviews
@@ -92,15 +93,39 @@ async def review_paper(payload: PaperReviewRequest, db: Session = Depends(get_db
         author_response_letter=author_response,
         related_papers=json.dumps(related_papers),
     )
-    db.add(review)
-    db.commit()
-    db.refresh(review)
-    return serialize_review(review)
+    try:
+        db.add(review)
+        db.commit()
+        db.refresh(review)
+        return serialize_review(review)
+    except SQLAlchemyError:
+        db.rollback()
+        return PaperReviewResponse(
+            id=0,
+            paper_id=0,
+            title=payload.title,
+            abstract=payload.abstract,
+            content=payload.content,
+            domain=payload.domain,
+            formatted_submission=formatted,
+            reviewer_1=reviewer_1,
+            reviewer_2=reviewer_2,
+            reviewer_3=reviewer_3,
+            aggregated_review=aggregated,
+            decision=decision,
+            decision_reason=decision_reason,
+            author_response_letter=author_response,
+            related_papers=related_papers,
+            created_at=None,
+        )
 
 
 @router.get("/reviews", response_model=list[ReviewHistoryItem])
 def list_reviews(db: Session = Depends(get_db)):
-    reviews = db.query(PaperReview).order_by(PaperReview.created_at.desc()).all()
+    try:
+        reviews = db.query(PaperReview).order_by(PaperReview.created_at.desc()).all()
+    except SQLAlchemyError:
+        return []
     return [
         ReviewHistoryItem(
             paper_id=review.id,
@@ -115,7 +140,10 @@ def list_reviews(db: Session = Depends(get_db)):
 
 @router.get("/reviews/{paper_id}", response_model=PaperReviewResponse)
 def get_review(paper_id: int, db: Session = Depends(get_db)):
-    review = db.get(PaperReview, paper_id)
+    try:
+        review = db.get(PaperReview, paper_id)
+    except SQLAlchemyError:
+        raise HTTPException(status_code=503, detail="Review storage is unavailable in demo mode")
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
     return serialize_review(review)

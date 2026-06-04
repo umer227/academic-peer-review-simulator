@@ -14,12 +14,13 @@ origins = [
     settings.frontend_origin,
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "*",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -28,6 +29,12 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup() -> None:
     init_db()
+
+
+@app.get("/")
+def root() -> dict[str, str]:
+    mode = "live" if llm_service.live_mode_enabled else "demo"
+    return {"status": "ok", "service": settings.app_name, "mode": mode}
 
 
 @app.get("/health")

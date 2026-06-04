@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.config import get_settings
@@ -10,6 +11,7 @@ connect_args = {"check_same_thread": False} if database_url.startswith("sqlite")
 
 engine = create_engine(database_url, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+DATABASE_AVAILABLE = True
 
 
 class Base(DeclarativeBase):
@@ -25,10 +27,15 @@ def get_db():
 
 
 def init_db() -> None:
+    global DATABASE_AVAILABLE
     from app import models
 
-    Base.metadata.create_all(bind=engine)
-    _ensure_optional_columns()
+    try:
+        Base.metadata.create_all(bind=engine)
+        _ensure_optional_columns()
+        DATABASE_AVAILABLE = True
+    except SQLAlchemyError:
+        DATABASE_AVAILABLE = False
 
 
 def _ensure_optional_columns() -> None:

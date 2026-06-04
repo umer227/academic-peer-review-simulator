@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -13,6 +14,10 @@ class Settings(BaseSettings):
 
     @property
     def resolved_database_url(self) -> str:
+        if self.database_url:
+            return self.database_url
+        if os.getenv("VERCEL"):
+            return "sqlite:////tmp/peer_review.db"
         return self.database_url or "sqlite:///./peer_review.db"
 
 
