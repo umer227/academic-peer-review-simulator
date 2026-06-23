@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.database import init_db
+from app.routers.pdf import router as pdf_router
 from app.routers.review import router as review_router
 from app.services.llm_service import llm_service
 
@@ -44,3 +45,4 @@ def health() -> dict[str, str]:
 
 
 app.include_router(review_router)
+app.include_router(pdf_router)

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
   Brain,
@@ -12,8 +12,9 @@ import {
   RefreshCw,
   Send,
   Sparkles,
+  Upload,
 } from "lucide-react";
-import { fetchHealth, fetchReview, fetchReviews, submitPaper } from "./api";
+import { extractPdf, fetchHealth, fetchReview, fetchReviews, submitPaper } from "./api";
 
 const initialForm = {
   title: "AI-Supported Peer Feedback for Reflective Learning",
@@ -113,6 +114,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [progressIndex, setProgressIndex] = useState(-1);
   const [error, setError] = useState("");
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const pdfInputRef = useRef(null);
 
   const wordCount = useMemo(() => form.content.trim().split(/\s+/).filter(Boolean).length, [form.content]);
 
@@ -151,6 +154,27 @@ function App() {
   function updateField(event) {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
+  }
+
+  async function handlePdfUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setPdfLoading(true);
+    setError("");
+    try {
+      const data = await extractPdf(file);
+      setForm((current) => ({
+        ...current,
+        title: data.title || current.title,
+        abstract: data.abstract || current.abstract,
+        content: data.content || current.content,
+      }));
+    } catch (err) {
+      setError(err.message || "Failed to extract PDF content.");
+    } finally {
+      setPdfLoading(false);
+      event.target.value = "";
+    }
   }
 
   async function handleSubmit(event) {
@@ -227,6 +251,25 @@ function App() {
             </div>
 
             <form onSubmit={handleSubmit} className="paper-form">
+              <div className="pdf-upload-row">
+                <input
+                  ref={pdfInputRef}
+                  type="file"
+                  accept=".pdf"
+                  style={{ display: "none" }}
+                  onChange={handlePdfUpload}
+                />
+                <button
+                  type="button"
+                  className="ghost-button pdf-button"
+                  disabled={pdfLoading || loading}
+                  onClick={() => pdfInputRef.current?.click()}
+                >
+                  {pdfLoading ? <Loader2 className="spin" size={16} /> : <Upload size={16} />}
+                  {pdfLoading ? "Extracting PDF…" : "Upload PDF"}
+                </button>
+                <span className="pdf-hint">Auto-fills the form from your PDF</span>
+              </div>
               <label>
                 Title
                 <input name="title" value={form.title} onChange={updateField} minLength={3} required />

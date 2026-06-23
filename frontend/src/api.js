@@ -49,3 +49,25 @@ export function fetchReview(paperId) {
 export function fetchHealth() {
   return request("/health");
 }
+
+export async function extractPdf(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/extract-pdf`, { method: "POST", body: formData });
+  } catch {
+    throw new Error(`Cannot reach the backend API at ${API_BASE_URL}.`);
+  }
+  if (!response.ok) {
+    let message = "";
+    try {
+      const data = await response.json();
+      message = data.detail || JSON.stringify(data);
+    } catch {
+      message = await response.text();
+    }
+    throw new Error(message || `PDF extraction failed with status ${response.status}`);
+  }
+  return response.json();
+}
