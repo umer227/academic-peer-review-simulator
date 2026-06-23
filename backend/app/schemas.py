@@ -35,6 +35,7 @@ class PaperReviewResponse(BaseModel):
     decision_reason: str = ""
     author_response_letter: str
     related_papers: list[dict[str, Any]] = []
+    ai_assessment: str = ""
     created_at: datetime | None = None
 
 

@@ -121,6 +121,27 @@ class LLMService:
                 "Reason: The paper shows promise and is suitable for continued consideration after targeted revisions. "
                 "The concerns involve methodology detail, literature positioning, and clarity rather than a fundamental flaw."
             ),
+            "assessment": (
+                "Overall Quality Score\n"
+                "7.3 / 10\n\n"
+                "Publication Readiness\n"
+                "Minor Revisions Needed — The manuscript demonstrates a sound educational motivation and a viable research direction. "
+                "Targeted improvements to methodology, literature positioning, and structural clarity are required before publication.\n\n"
+                "Key Strengths\n"
+                "- Addresses a timely and practically relevant problem in AI-assisted formative feedback.\n"
+                "- Workflow design is accessible and suitable for real classroom experimentation.\n"
+                "- Clear alignment between the proposed intervention and measurable learner outcomes.\n\n"
+                "Critical Gaps\n"
+                "- Research questions are not formally stated; the study design lacks specificity on participants and metrics.\n"
+                "- The literature review does not adequately situate the work against recent AI-in-education and peer feedback studies.\n"
+                "- Validity threats, limitations, and reproducibility conditions are absent from the current draft.\n\n"
+                "Priority Recommendations\n"
+                "1. Add a dedicated Research Questions section with testable, measurable objectives.\n"
+                "2. Expand the related work section to cover at least 5 recent studies (2021–2024) on AI feedback, peer assessment, and reflective learning.\n"
+                "3. Include a full Methods section: participants, study design, instruments, data collection, analysis plan, and ethical considerations.\n"
+                "4. State the contribution claim in one concise paragraph that differentiates this work from existing approaches.\n"
+                "5. Restructure the manuscript with explicit section headings: Introduction, Related Work, Methodology, Expected Results, Limitations, Conclusion."
+            ),
             "author": (
                 "Dear Editors and Reviewers,\n\n"
                 "Thank you for the careful and constructive review of our manuscript. We appreciate the reviewers' "

@@ -23,4 +23,5 @@ class PaperReview(Base):
     decision_reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
     author_response_letter: Mapped[str] = mapped_column(Text, nullable=False)
     related_papers: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    ai_assessment: Mapped[str] = mapped_column(Text, nullable=False, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

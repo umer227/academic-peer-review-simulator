@@ -6,6 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.agents.aggregator_agent import aggregate_reviews
+from app.agents.assessment_agent import assess_paper
 from app.agents.author_agent import generate_author_response
 from app.agents.decision_agent import parse_decision, recommend_decision
 from app.agents.reviewer_agents import review_clarity, review_methodology, review_originality
@@ -60,6 +61,7 @@ def serialize_review(review: PaperReview) -> PaperReviewResponse:
         decision_reason=review.decision_reason,
         author_response_letter=review.author_response_letter,
         related_papers=related,
+        ai_assessment=review.ai_assessment or "",
         created_at=review.created_at,
     )
 
@@ -77,6 +79,7 @@ async def review_paper(payload: PaperReviewRequest, db: Session = Depends(get_db
     decision_text = recommend_decision(aggregated)
     decision, decision_reason = parse_decision(decision_text)
     author_response = generate_author_response(aggregated, f"{decision}\n\nReason: {decision_reason}")
+    ai_assessment = assess_paper(formatted, aggregated, decision)
 
     review = PaperReview(
         title=payload.title,
@@ -92,6 +95,7 @@ async def review_paper(payload: PaperReviewRequest, db: Session = Depends(get_db
         decision_reason=decision_reason,
         author_response_letter=author_response,
         related_papers=json.dumps(related_papers),
+        ai_assessment=ai_assessment,
     )
     try:
         db.add(review)
@@ -116,6 +120,7 @@ async def review_paper(payload: PaperReviewRequest, db: Session = Depends(get_db
             decision_reason=decision_reason,
             author_response_letter=author_response,
             related_papers=related_papers,
+            ai_assessment=ai_assessment,
             created_at=None,
         )
 

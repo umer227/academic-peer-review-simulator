@@ -46,6 +46,7 @@ def _ensure_optional_columns() -> None:
     existing = {column["name"] for column in inspector.get_columns("paper_reviews")}
     optional_columns = {
         "decision_reason": "TEXT DEFAULT ''",
+        "ai_assessment": "TEXT DEFAULT ''",
     }
 
     with engine.begin() as connection:

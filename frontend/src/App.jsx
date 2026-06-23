@@ -3,6 +3,7 @@ import {
   BookOpen,
   Brain,
   CheckCircle2,
+  ClipboardCheck,
   FileText,
   History,
   Loader2,
@@ -31,6 +32,7 @@ const workflow = [
   "Aggregator Agent",
   "Decision Agent",
   "Author Agent",
+  "Assessment Agent",
 ];
 
 const reviewerCards = [
@@ -46,6 +48,14 @@ const aggregateHeadings = [
   "Major Concerns",
   "Required Revisions",
   "Final Reviewer Consensus",
+];
+
+const assessmentHeadings = [
+  "Overall Quality Score",
+  "Publication Readiness",
+  "Key Strengths",
+  "Critical Gaps",
+  "Priority Recommendations",
 ];
 
 function decisionClass(decision = "") {
@@ -198,7 +208,7 @@ function App() {
             <h1>Submit a manuscript and run a simulated scholarly review board.</h1>
           </div>
           <div className="metrics">
-            <div><strong>7</strong><span>Agents</span></div>
+            <div><strong>8</strong><span>Agents</span></div>
             <div><strong>{history.length}</strong><span>Saved Reviews</span></div>
             <div><strong>{mode === "live" ? "Live" : "Demo"}</strong><span>{mode === "live" ? "LLM keys detected" : "No API key required"}</span></div>
           </div>
@@ -303,6 +313,13 @@ function App() {
               <h3><PenLine size={18} /> Author Response Letter</h3>
               <p className="text-block">{result.author_response_letter}</p>
             </article>
+
+            {result.ai_assessment && (
+              <article className="panel result-card assessment-card">
+                <h3><ClipboardCheck size={18} /> AI Assessment</h3>
+                <SectionedText text={result.ai_assessment} headings={assessmentHeadings} />
+              </article>
+            )}
 
             <section className="panel related-panel">
               <h3><BookOpen size={18} /> Related Papers</h3>
