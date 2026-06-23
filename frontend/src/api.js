@@ -18,12 +18,17 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
+    const clone = response.clone();
     let message = "";
     try {
       const data = await response.json();
       message = data.detail || data.message || JSON.stringify(data);
     } catch {
-      message = await response.text();
+      try {
+        message = await clone.text();
+      } catch {
+        message = `Backend request failed with status ${response.status}`;
+      }
     }
     throw new Error(message || `Backend request failed with status ${response.status}`);
   }
@@ -60,12 +65,17 @@ export async function extractPdf(file) {
     throw new Error(`Cannot reach the backend API at ${API_BASE_URL}.`);
   }
   if (!response.ok) {
+    const clone = response.clone();
     let message = "";
     try {
       const data = await response.json();
       message = data.detail || JSON.stringify(data);
     } catch {
-      message = await response.text();
+      try {
+        message = await clone.text();
+      } catch {
+        message = `PDF extraction failed with status ${response.status}`;
+      }
     }
     throw new Error(message || `PDF extraction failed with status ${response.status}`);
   }
