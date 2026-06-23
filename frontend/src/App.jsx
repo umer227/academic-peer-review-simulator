@@ -275,8 +275,8 @@ function App() {
                 <input name="title" value={form.title} onChange={updateField} minLength={3} required />
               </label>
               <label>
-                Abstract
-                <textarea name="abstract" value={form.abstract} onChange={updateField} minLength={10} rows={5} required />
+                Abstract <span style={{fontWeight:400,color:"#64748b",fontSize:"0.8rem"}}>(optional — auto-filled from PDF if available)</span>
+                <textarea name="abstract" value={form.abstract} onChange={updateField} rows={5} />
               </label>
               <label>
                 Full Paper Content

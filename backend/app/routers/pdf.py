@@ -23,19 +23,53 @@ def _parse_sections(text: str) -> dict:
     if lines:
         title = lines[0][:200]
 
+    # Try: "Abstract" as a standalone heading followed by text on next lines
     abstract_match = re.search(
-        r"(?:^|\n)\s*abstract\s*[:\-]?\s*\n?([\s\S]{80,1500?}?)(?=\n\s*(?:introduction|keywords|1\.|background)\s*|$)",
+        r"(?:^|\n)\s*abstract\s*[:\-]?\s*\n([\s\S]{40,1500}?)(?=\n\s*(?:introduction|keywords|1[\.\s]|background|objective|method)\s*(?:\n|$)|$)",
         text,
         re.IGNORECASE,
     )
+    # Try: "Abstract:" or "Abstract—" with text on the SAME line
+    if not abstract_match:
+        abstract_match = re.search(
+            r"(?:^|\n)\s*abstract\s*[:\-—]\s*(.{40,1500}?)(?=\n\s*(?:introduction|keywords|1[\.\s]|background|objective|method)\s*(?:\n|$)|\n\n|$)",
+            text,
+            re.IGNORECASE | re.DOTALL,
+        )
     if abstract_match:
         abstract = abstract_match.group(1).strip()
+
+    # Fallback: look for Objective/Overview/Summary sections (common in lab reports)
+    if not abstract:
+        obj_match = re.search(
+            r"(?:^|\n)\s*(?:objective|overview|summary|purpose)\s*[:\-]?\s*\n?([\s\S]{40,800}?)(?=\n\s*(?:introduction|theory|background|method|procedure|1[\.\s])\s*(?:\n|$)|\n\n\n|$)",
+            text,
+            re.IGNORECASE,
+        )
+        if obj_match:
+            abstract = obj_match.group(1).strip()
+
+    # Last fallback: use the first long paragraph after the title line
+    if not abstract and len(lines) > 1:
+        candidate_lines = []
+        for line in lines[1:15]:
+            if len(line) > 60:
+                candidate_lines.append(line)
+            if len(" ".join(candidate_lines)) > 200:
+                break
+        if candidate_lines:
+            abstract = " ".join(candidate_lines)[:800]
 
     intro_match = re.search(r"\n\s*(?:1[\.\s]+)?introduction\s*\n", text, re.IGNORECASE)
     if intro_match:
         content = text[intro_match.start():].strip()
     elif abstract:
-        content = text[text.find(abstract) + len(abstract):].strip()
+        abs_pos = text.find(abstract[:80])
+        if abs_pos != -1:
+            content = text[abs_pos + len(abstract):].strip()
+
+    if not content.strip():
+        content = text
 
     return {
         "title": title,
